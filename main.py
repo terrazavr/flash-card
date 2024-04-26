@@ -1,5 +1,8 @@
 from tkinter import *
+from gtts import gTTS
+import os
 import pandas
+import playaudio
 import random
 
 
@@ -22,6 +25,7 @@ def next_card():
     """Shows a new card with a new random word, and after 3 sec,
     it shows the card with translation. After pressing any button,
     the func restarts and opens new card."""
+    language = "en"
     global current_word, flip_timer
     window.after_cancel(flip_timer)
     current_word = random.choice(words_dict)
@@ -29,7 +33,12 @@ def next_card():
     canvas.itemconfig(word, text=current_word["English"], fill="black")
     canvas.itemconfig(transcription, text=current_word["Transcription"], fill="black")
     canvas.itemconfig(canvas_image, image=front_card)
-    flip_timer = window.after(3000, flip_card)
+
+    audio_output = gTTS(text=current_word["English"], lang=language)
+    audio_output.save("english_word.mp3")
+    playaudio.playaudio("english_word.mp3", True)
+    os.remove("english_word.mp3")
+    window.after(3000, flip_card)
 
 
 def flip_card():
@@ -46,7 +55,7 @@ def is_known():
     words_dict.remove(current_word)
     next_card()
     datas = pandas.DataFrame(words_dict)
-    datas.to_csv("data/to-learn.csv")
+    datas.to_csv("data/to-learn.csv", index=False)
 
 
 # ---------------------------- UI SETUP ------------------------------- #
